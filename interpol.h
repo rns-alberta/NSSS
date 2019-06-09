@@ -1,0 +1,1 @@
+float polyinter(float M0, float e_c[], float M_0[]);

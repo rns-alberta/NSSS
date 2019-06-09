@@ -1,0 +1,3 @@
+With the equation of state eosAPR
+
+./isco -f eos-master/eosAPR -e 8e14 -l 22e14 -n 20 -s 300
