@@ -31,7 +31,7 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
       
   int i, ierr;
   double
-    e_min, e_max,
+    e_min, e_max, e_max_mass,
    e_center=1e15,                     /* central en. density */
    B,                            /* Quark Bag Constant */
    K=3.0,                        /* Second parameter in "quark" eos */
@@ -41,10 +41,10 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
   int j;
 
   int a = 0, numseq=2;
-  int value = 0;
+  int spin_lim = 0;
   float e_c[4], M_0[4];
   float M0, Mstat, Rstat, energy_value, temp_energy, ratio_r = 1.0, ej;
-  float maxmass, maxradius;
+  float maxmass, maxradius;   // Mass and radius of the maximum mass neutron star for an EOS
   float T, W;
   //double Kfreq, Kfreq_j;
 
@@ -107,8 +107,9 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
 	break;
 
      case 'm':  
-  /* CHOOSE MAXIMUM MASS FOR THE EOS */
-  sscanf(argv[i+1],"%f",&maxmass);
+  /* CHOOSE CENTRAL ENERGY DENSITY FOR THE
+      MAXIMUM MASS NEUTRON STAR FOR THE EOS */
+  sscanf(argv[i+1],"%lf",&e_max_mass);
   break;
 
      case 's':
@@ -122,15 +123,10 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
   sscanf(argv[i+1],"%f",&ratio_r);
   break;
 
-     case 'x':
-  /* CHOOSE THE MAXIMUM RADIUS FOR THE EOS*/
-  sscanf(argv[i+1],"%f",&maxradius);
-  break;
-
      case 't':
-  /* CHOOSE TO COMPUTE SEQUENCE UP TO 800 HZ
-   BY INPUT 1*/
-  sscanf(argv[i+1],"%d",&value);
+  /* CHOOSE TO COMPUTE SEQUENCE UP TO 
+  A CERTAIN VALUE */
+  sscanf(argv[i+1],"%d",&spin_lim);
   break;
 
      case 'h': 
@@ -167,11 +163,26 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
   e_center = e_min;
   temp_energy = e_center;
 
+  if(ratio_r == 1.0 && spin_lim == 0)
+    printf("Computing sequences with spin frequency from 0 Hz to the Kepler limit\n");
+  else if(spin_lim != 0)
+    printf("Computing star with spin frequency from 0 to %d Hz\n", spin_lim);
+  else
+    printf("Computing one neutron star\n");
+
   printf("e_c \t Mass \t Mass_0\t StatM \t Radius\tR-ratio\t StatR \t Spin\t K freq\n");
   printf("e15 \t Msun \t Msun\t Msun\t km\t --  \t km \t Hz \t Hz \n");
 
-  if(ratio_r == 1.0 && value == 0){
-    printf("Computing star with r_ratio = 1 up to Kepler limit\n");
+// Computing the star with the maximum mass and its corresponding radius
+   ierr = MakeSphere(&eos, &star, e_max_mass);
+   rns(1.0, e_max_mass, &eos, &star); 
+   maxmass = star.Mass/MSUN;
+   maxradius = star.R_e*1e-5;
+
+// Three tasks 
+// Computing sequences with spin frequency from 0 to Kepler limit
+if(ratio_r == 1.0 && spin_lim == 0){
+
   while ( a < numseq  ){
     ratio_r = 1.0;
     temp_energy = e_center;
@@ -257,9 +268,8 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
    a = a + 1;
   }
  }
-// Computing sequences from 0 Hz to 800 Hz
-else if(value == 1){
-  printf("Computing star with small values of Omega\n");
+// Computing sequences from 0 Hz to a given value of spin frequency
+else if(spin_lim != 0){
   while ( a < numseq  ){
     ratio_r = 1.0;
     temp_energy = e_center;
@@ -288,10 +298,10 @@ else if(value == 1){
     M0 = star.Mass_0/MSUN;
  while(1){   
  printf("---------------------------------------------------------------------------\n");
-  ratio_r = ratio_r - 0.0025;
+  ratio_r = ratio_r - 0.0020; //0.0025 for all eos except APR
 
   for(j=0;j<3;j++){
-   ej = temp_energy - 0.01*j; 
+   ej = temp_energy - 0.005*j; // 0.01 for all eos except APR
 
    ierr = MakeSphere(&eos, &star, ej);
    //rns(ratio_r, ej, &eos, &star); 
@@ -326,7 +336,7 @@ else if(value == 1){
     printf("%g %.5f  %.5f  %.5f %.5f %.3f %.5f %.3f %.5f\n",
         energy_value, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI));
 
-    if( (star.Omega/(2.0*PI)) > 800) break;
+    if( (star.Omega/(2.0*PI)) > spin_lim) break;
     if(isnan(star.Mass/MSUN)){
       printf("Mass is NAN\n");
       break;
@@ -341,58 +351,30 @@ else if(value == 1){
         energy_value, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, maxmass, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI), star.ang_mom, T, W, maxradius, maxmass/maxradius);
 
    }
-   e_center = e_center + 0.1; //0.1
+   e_center = e_center + 0.05; //0.1
    a = a + 1;
   }
 
 }
 
- // Computing one star
+ // Computing one neutron star
 else{
-    printf("Computing one neutron star\n");
-    ratio_r = 0.70;
-    ierr = MakeSphere(&eos, &star, e_center);
-    rns(ratio_r, e_center, &eos, &star); 
-
+    //Computing the non-rotating spherical neutron star
+    ierr = MakeSphere(&eos, &star, e_min); 
+    rns(1.0, e_min, &eos, &star); 
     Mstat = star.Mass/MSUN;
-    Rstat = star.R_e*1e-5;
-  
-    printf("%g %4.5f  %.5f  %.5f %.5f %.3f %.5f %.3f %.5f\n",
-        star.e_center, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI));
+    Rstat = star.R_e*1e-5;   
 
-    ratio_r = 0.644;
-    //ierr = MakeSphere(&eos, &star, e_center);
-    rns(ratio_r, e_center, &eos, &star); 
-
-    Mstat = star.Mass/MSUN;
-    Rstat = star.R_e*1e-5;
-  
-    printf("%g %.5f  %.5f  %.5f %.5f %.3f %.5f %.3f %.5f\n",
-        star.e_center, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI));
-        
-
-    ratio_r = 0.643;
-    //ierr = MakeSphere(&eos, &star, e_center);
-    rns(ratio_r, e_center, &eos, &star); 
-
-    Mstat = star.Mass/MSUN;
-    Rstat = star.R_e*1e-5;
-  
-    printf("%g %.5f  %.5f  %.5f %.5f %.3f %.5f %.3f %.5f\n",
-        star.e_center, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI));
-  
-    ratio_r = 0.640;
-    //ierr = MakeSphere(&eos, &star, e_center);
-    rns(ratio_r, e_center, &eos, &star); 
-
-    Mstat = star.Mass/MSUN;
-    Rstat = star.R_e*1e-5;
+    // Computing the one star with given value of ratio_r
+    if(ratio_r < 0.7)
+      rns(0.7, e_min, &eos, &star);
+    
+    rns(ratio_r, e_min, &eos, &star); 
   
     printf("%g %4.5f  %4.5f  %4.5f %.5f %.3f %.5f %.3f %.5f\n",
         star.e_center, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI), star.Omega_K/(2.0*PI));
 
-
-}
+    }
 
   fclose(fpointer);
   return 0;
