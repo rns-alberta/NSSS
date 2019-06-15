@@ -210,7 +210,7 @@ if(ratio_r == 1.0 && spin_lim == 0){
 
     M0 = star.Mass_0/MSUN;
  while(1){   
- printf("---------------------------------------------------------------------------\n");
+ //printf("---------------------------------------------------------------------------\n");
   ratio_r = ratio_r - 0.01;
 
   for(j=0;j<3;j++){
@@ -223,8 +223,8 @@ if(ratio_r == 1.0 && spin_lim == 0){
   
    rns(ratio_r, ej, &eos, &star); 
 
-   printf("%g %.5f  %.5f  %.5f %.5f %.3f %.4f %.4f \n",
-        ej, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI));
+   //printf("%g %.5f  %.5f  %.5f %.5f %.3f %.4f %.4f \n",
+    //    ej, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI));
 
    e_c[j] = ej;
    M_0[j] = star.Mass_0/MSUN;
@@ -236,7 +236,7 @@ if(ratio_r == 1.0 && spin_lim == 0){
 
    energy_value = polyinter(M0, e_c, M_0);
 
- printf("---------------------------------------------------------------------------\n");
+ //printf("---------------------------------------------------------------------------\n");
     temp_energy = energy_value;
     ierr = MakeSphere(&eos, &star, energy_value);
     //rns(ratio_r, energy_value, &eos, &star); 
@@ -297,7 +297,7 @@ else if(spin_lim != 0){
 
     M0 = star.Mass_0/MSUN;
  while(1){   
- printf("---------------------------------------------------------------------------\n");
+ //printf("---------------------------------------------------------------------------\n");
   ratio_r = ratio_r - 0.0020; //0.0025 for all eos except APR
 
   for(j=0;j<3;j++){
@@ -310,8 +310,8 @@ else if(spin_lim != 0){
   
    rns(ratio_r, ej, &eos, &star); 
 
-   printf("%g %.5f  %.5f  %.5f %.5f %.3f %.4f %.4f \n",
-        ej, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI));
+   //printf("%g %.5f  %.5f  %.5f %.5f %.3f %.4f %.4f \n",
+    //    ej, star.Mass/MSUN, star.Mass_0/MSUN, Mstat, star.R_e*1e-5, ratio_r, Rstat, star.Omega/(2.0*PI));
 
    e_c[j] = ej;
    M_0[j] = star.Mass_0/MSUN;
@@ -323,7 +323,7 @@ else if(spin_lim != 0){
 
    energy_value = polyinter(M0, e_c, M_0);
 
- printf("---------------------------------------------------------------------------\n");
+ //printf("---------------------------------------------------------------------------\n");
     temp_energy = energy_value;
     ierr = MakeSphere(&eos, &star, energy_value);
     //rns(ratio_r, energy_value, &eos, &star); 
