@@ -51,20 +51,20 @@ MY_OWN =-g3 -Wall
 #*************************************************************************/
 
 
-SOBJ=sequences.o findmodel.o equil.o equil_util.o nrutil.o stableorbit.o surface.o interpol.o
+SOBJ=nsss.o findmodel.o equil.o equil_util.o nrutil.o stableorbit.o surface.o interpol.o
 MOBJ=findmodel.o equil.o equil_util.o nrutil.o stableorbit.o surface.o interpol.o maxmass.o
 
 #/*************************************************************************
 #*                    MAIN COMPILING INSTRUCTIONS
 #*************************************************************************/
-sequences: $(SOBJ)
-	$(CC) $(MY_OWN) -lm  $(HIGHSIZE) -o sequences $(SOBJ)
+nsss: $(SOBJ)
+	$(CC) $(MY_OWN) -lm  $(HIGHSIZE) -o nsss $(SOBJ)
 
 maxmass: $(MOBJ)
 	$(CC) $(MY_OWN) -lm  $(HIGHSIZE) -o maxmass $(MOBJ)
 
-sequences.o: consts.h struct.h nrutil.h equil.h equil_util.h findmodel.h stableorbit.h sequences.c makefile interpol.h
-	$(CC) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(HIGHSIZE)  sequences.c 
+nsss.o: consts.h struct.h nrutil.h equil.h equil_util.h findmodel.h stableorbit.h nsss.c makefile interpol.h
+	$(CC) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(HIGHSIZE)  nsss.c 
 
 maxmass.o: consts.h struct.h nrutil.h equil.h equil_util.h findmodel.h maxmass.c makefile
 	$(CC) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(HIGHSIZE)  maxmass.c 

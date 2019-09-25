@@ -79,8 +79,8 @@ void load_eos( char eos_file[],
  double p,                 /* pressure */
         rho,               /* density */
         h,                 /* enthalpy */
-        n0,                /* number density */    
-        g;                 /* Gamma */
+        n0;                /* number density */    
+        //g;                 /* Gamma */
 
  FILE *f_eos;              /* pointer to eos_file */
   
