@@ -49,11 +49,11 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
   //double Kfreq, Kfreq_j;
 
   FILE *fpointer;
-  fpointer = fopen("NS_data.txt", "a");
 
   char eos_file[80] = "no EOS file specified";   /* EOS file name */
   char eos_type[80] = "tab";                     /* EOS type (poly or tab) */
   char data_dir[80] = "junk";                    /* Data output directory */
+  char filename[100] = "NS_data_";
 
 
 
@@ -144,7 +144,12 @@ int main(int argc, char **argv)     /* Number of command line arguments, Command
 	break;  
       }
     }
-
+ 
+  strncat(filename, eos_file, 65);
+  strncat(filename, ".txt", 65);
+  printf("%s\n", filename);
+  fpointer = fopen(filename, "a");
+ 
 
   /* PRINT THE HEADER */
   if(strcmp(eos_type,"tab")==0)
