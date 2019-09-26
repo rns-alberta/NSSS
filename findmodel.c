@@ -258,7 +258,7 @@ int rns(double r_ratio,
 	EOS *eos,
 	NeutronStar *star)
 {
-  int a_check;
+  int a_check = 0;
   int s,m;
   double cf=1.0;
   double accuracy=1e-5;
